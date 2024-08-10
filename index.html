@@ -4,28 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan QR Code</title>
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <!-- โหลดจาก jsDelivr CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
     <h1>Scan QR Code</h1>
     <div id="reader" style="width:300px;"></div>
     <script>
         function onScanSuccess(qrCodeMessage) {
-            // เมื่อสแกน QR Code สำเร็จ
-            const stdid = qrCodeMessage; // สมมติว่า QR code มีค่า stdid โดยตรง
+            const stdid = qrCodeMessage; 
             const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSef3NyTNWCmb2xAMOxq_jen-SOEqAHuENM0KrUM65Iqwnqszg/viewform?usp=pp_url&entry.163639690=${stdid}`;
-            window.location.href = formUrl; // รีไดเรคไปยัง Google Form
+            window.location.href = formUrl; 
         }
 
         function onScanError(errorMessage) {
-            // สามารถจัดการกับข้อผิดพลาดได้ที่นี่
             console.error(`QR Code scan error: ${errorMessage}`);
         }
 
         const html5QrCode = new Html5Qrcode("reader");
-        const qrConfig = { fps: 10, qrbox: 250 };
 
-        html5QrCode.start({ facingMode: "environment" }, qrConfig, onScanSuccess, onScanError);
+        // ตรวจสอบว่ามีอุปกรณ์ที่รองรับการสแกน QR Code หรือไม่
+        Html5Qrcode.getCameras().then(cameras => {
+            if (cameras && cameras.length) {
+                // เริ่มการสแกนโดยเลือกกล้องตัวแรก
+                html5QrCode.start(
+                    { deviceId: cameras[0].id },
+                    {
+                        fps: 10,   
+                        qrbox: 250 
+                    },
+                    onScanSuccess,
+                    onScanError
+                );
+            } else {
+                console.error("No cameras found.");
+            }
+        }).catch(err => {
+            console.error(`Error getting cameras: ${err}`);
+        });
     </script>
 </body>
 </html>
