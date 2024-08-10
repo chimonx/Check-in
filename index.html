@@ -43,25 +43,6 @@
             text-align: center;
             font-size: 1.1em;
         }
-
-        .button-container {
-            margin-top: 20px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            font-size: 1em;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn:hover {
-            background-color: #0056b3;
-        }
     </style>
 </head>
 <body>
@@ -70,9 +51,6 @@
         <p>กรุณาสแกน QR Code โดยการใช้กล้องหลังของอุปกรณ์ของคุณ</p>
     </div>
     <div id="reader"></div>
-    <div class="button-container">
-        <button class="btn" onclick="startScan()">เริ่มการสแกน</button>
-    </div>
     <script>
         let hasScanned = false; // ตัวแปรตรวจสอบการสแกน
         let html5QrCode;
@@ -91,50 +69,43 @@
             console.error(`QR Code scan error: ${errorMessage}`);
         }
 
-        function startScan() {
-            if (html5QrCode) {
-                html5QrCode.start(
-                    { facingMode: "environment" },
-                    {
-                        fps: 10,
-                        qrbox: 250
-                    },
-                    onScanSuccess,
-                    onScanError
-                ).catch(err => {
-                    console.error(`Error starting QR code scan: ${err}`);
-                });
-            } else {
-                html5QrCode = new Html5Qrcode("reader");
-                startScan(); // เริ่มการสแกนใหม่หลังจากสร้าง instance
-            }
-        }
-
-        // ตรวจสอบการอนุญาตการเข้าถึงกล้อง
-        async function requestCameraAccess() {
+        async function startScan() {
             try {
+                // ตรวจสอบการอนุญาตการเข้าถึงกล้อง
                 await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                 console.log("Camera access granted.");
-                // เรียกใช้ฟังก์ชันเริ่มต้นการสแกนหลังจากการอนุญาตกล้อง
+
+                // เริ่มการสแกน QR Code
                 Html5Qrcode.getCameras().then(cameras => {
                     if (cameras && cameras.length) {
                         const backCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('rear'));
                         const cameraId = backCamera ? backCamera.id : cameras[0].id;
                         html5QrCode = new Html5Qrcode("reader");
-                        startScan(); // เริ่มการสแกนโดยใช้กล้องที่เลือก
+                        html5QrCode.start(
+                            { deviceId: cameraId },
+                            {
+                                fps: 10,
+                                qrbox: 250
+                            },
+                            onScanSuccess,
+                            onScanError
+                        ).catch(err => {
+                            console.error(`Error starting QR code scan: ${err}`);
+                        });
                     } else {
                         console.error("No cameras found.");
                     }
                 }).catch(err => {
                     console.error(`Error getting cameras: ${err}`);
                 });
+
             } catch (error) {
                 console.error("Camera access denied or failed:", error);
             }
         }
 
-        // เรียกใช้ฟังก์ชันร้องขอการเข้าถึงกล้อง
-        requestCameraAccess();
+        // เรียกใช้ฟังก์ชันเริ่มการสแกนเมื่อโหลดหน้าเว็บเสร็จ
+        document.addEventListener("DOMContentLoaded", startScan);
     </script>
 </body>
 </html>
