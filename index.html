@@ -5,66 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scan QR Code</title>
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <style>
+        #reader {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            margin: auto;
+        }
+    </style>
 </head>
 <body>
     <h1>Scan QR Code</h1>
-    <div id="reader" style="width:300px;"></div>
+    <div id="reader"></div>
     <script>
+        let hasScanned = false; // ตัวแปรตรวจสอบการสแกน
+
         function onScanSuccess(qrCodeMessage) {
-            const stdid = qrCodeMessage;
-            const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSef3NyTNWCmb2xAMOxq_jen-SOEqAHuENM0KrUM65Iqwnqszg/viewform?usp=pp_url&entry.163639690=${stdid}`;
-            window.location.href = formUrl;
-        }
-
-        function onScanError(errorMessage) {
-            console.error(`QR Code scan error: ${errorMessage}`);
-        }
-
-        const html5QrCode = new Html5Qrcode("reader");
-
-        // ตรวจสอบว่ามีอุปกรณ์ที่รองรับการสแกน QR Code หรือไม่
-        Html5Qrcode.getCameras().then(cameras => {
-            if (cameras && cameras.length) {
-                // ลองหาอุปกรณ์กล้องหลัง
-                const backCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('rear'));
-
-                // หากพบกล้องหลัง ให้ใช้กล้องนั้น มิฉะนั้นใช้กล้องตัวแรก
-                const cameraId = backCamera ? backCamera.id : cameras[0].id;
-
-                html5QrCode.start(
-                    { deviceId: cameraId },
-                    {
-                        fps: 10,
-                        qrbox: 250
-                    },
-                    onScanSuccess,
-                    onScanError
-                );
-            } else {
-                console.error("No cameras found.");
+            if (hasScanned) {
+                return; // หากสแกนแล้วให้ไม่ทำอะไร
             }
-        }).catch(err => {
-            console.error(`Error getting cameras: ${err}`);
-        });
-    </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan QR Code</title>
-    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
-</head>
-<body>
-    <h1>Scan QR Code</h1>
-    <div id="reader" style="width:300px;"></div>
-    <script>
-        function onScanSuccess(qrCodeMessage) {
+            hasScanned = true; // ตั้งค่าตัวแปรเป็น true เพื่อป้องกันการสแกนซ้ำ
             const stdid = qrCodeMessage;
             const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSef3NyTNWCmb2xAMOxq_jen-SOEqAHuENM0KrUM65Iqwnqszg/viewform?usp=pp_url&entry.163639690=${stdid}`;
-            window.location.href = formUrl;
+            window.location.href = formUrl; // รีไดเรคไปยัง Google Form
         }
 
         function onScanError(errorMessage) {
@@ -73,13 +36,9 @@
 
         const html5QrCode = new Html5Qrcode("reader");
 
-        // ตรวจสอบว่ามีอุปกรณ์ที่รองรับการสแกน QR Code หรือไม่
         Html5Qrcode.getCameras().then(cameras => {
             if (cameras && cameras.length) {
-                // ลองหาอุปกรณ์กล้องหลัง
                 const backCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('rear'));
-
-                // หากพบกล้องหลัง ให้ใช้กล้องนั้น มิฉะนั้นใช้กล้องตัวแรก
                 const cameraId = backCamera ? backCamera.id : cameras[0].id;
 
                 html5QrCode.start(
