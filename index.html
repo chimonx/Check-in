@@ -6,19 +6,76 @@
     <title>Scan QR Code</title>
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
         #reader {
             width: 100%;
             max-width: 400px;
             height: auto;
-            margin: auto;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            background-color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .instructions {
+            margin: 20px;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <h1>Scan QR Code</h1>
+    <h1>QR Code Scanner</h1>
+    <div class="instructions">
+        <p>กรุณาสแกน QR Code โดยการใช้กล้องหลังของอุปกรณ์ของคุณ</p>
+    </div>
     <div id="reader"></div>
+    <div class="button-container">
+        <button class="btn" onclick="startScan()">เริ่มการสแกน</button>
+    </div>
     <script>
         let hasScanned = false; // ตัวแปรตรวจสอบการสแกน
+        let html5QrCode;
 
         function onScanSuccess(qrCodeMessage) {
             if (hasScanned) {
@@ -34,22 +91,32 @@
             console.error(`QR Code scan error: ${errorMessage}`);
         }
 
-        const html5QrCode = new Html5Qrcode("reader");
-
-        Html5Qrcode.getCameras().then(cameras => {
-            if (cameras && cameras.length) {
-                const backCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('rear'));
-                const cameraId = backCamera ? backCamera.id : cameras[0].id;
-
+        function startScan() {
+            if (html5QrCode) {
                 html5QrCode.start(
-                    { deviceId: cameraId },
+                    { facingMode: "environment" },
                     {
                         fps: 10,
                         qrbox: 250
                     },
                     onScanSuccess,
                     onScanError
-                );
+                ).catch(err => {
+                    console.error(`Error starting QR code scan: ${err}`);
+                });
+            } else {
+                html5QrCode = new Html5Qrcode("reader");
+                startScan(); // เริ่มการสแกนใหม่หลังจากสร้าง instance
+            }
+        }
+
+        // ตรวจสอบว่ามีอุปกรณ์ที่รองรับการสแกน QR Code หรือไม่
+        Html5Qrcode.getCameras().then(cameras => {
+            if (cameras && cameras.length) {
+                const backCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('rear'));
+                const cameraId = backCamera ? backCamera.id : cameras[0].id;
+                html5QrCode = new Html5Qrcode("reader");
+                startScan(); // เริ่มการสแกนโดยใช้กล้องที่เลือก
             } else {
                 console.error("No cameras found.");
             }
