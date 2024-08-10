@@ -3,22 +3,30 @@
 <head>
     <title>Google Form with Redirect</title>
     <script>
-        // ฟังก์ชันที่ทำการตรวจสอบการส่งฟอร์ม
-        function onSubmit() {
-            // URL ที่คุณต้องการ redirect ไป
+        function handleFormSubmission() {
+            // URL สำหรับการเปลี่ยนเส้นทาง
             var redirectUrl = 'https://www.your-redirect-url.com'; // เปลี่ยน URL นี้ตามต้องการ
-            // ใช้ setTimeout เพื่อทำการเปลี่ยนเส้นทางหลังจากการส่งฟอร์ม
+            
+            // ทำการเปลี่ยนเส้นทางหลังจากฟอร์มถูกส่ง
             setTimeout(function() {
                 window.location.href = redirectUrl;
-            }, 5000); // เวลา 5000 ms (5 วินาที) ก่อนเปลี่ยนเส้นทาง
+            }, 1000); // ตั้งเวลาให้เปลี่ยนเส้นทางหลังจาก 1 วินาที
         }
     </script>
 </head>
 <body>
     <h1>Fill out this form:</h1>
-    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSef3NyTNWCmb2xAMOxq_jen-SOEqAHuENM0KrUM65Iqwnqszg/viewform?embedded=true" width="640" height="800" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+    <iframe id="googleForm" src="https://docs.google.com/forms/d/e/1FAIpQLSef3NyTNWCmb2xAMOxq_jen-SOEqAHuENM0KrUM65Iqwnqszg/viewform?embedded=true" width="640" height="800" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
 
-    <!-- ปุ่ม Submit -->
-    <button onclick="onSubmit()">Submit</button>
+    <script>
+        // ใช้ setInterval เพื่อตรวจสอบการเปลี่ยนแปลงใน iframe
+        setInterval(function() {
+            var iframe = document.getElementById('googleForm');
+            var iframeSrc = iframe.contentWindow.location.href;
+            if (iframeSrc.includes('thankyou')) { // ตรวจสอบว่า URL ของ iframe มีคำว่า "thankyou" หรือไม่
+                handleFormSubmission();
+            }
+        }, 1000); // ตรวจสอบทุก 1 วินาที
+    </script>
 </body>
 </html>
