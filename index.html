@@ -3,54 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan QR Code</title>
+    <title>QR Code Scanner</title>
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f4f4f4;
-            color: #333;
+            padding: 0;
         }
 
         h1 {
             color: #007bff;
-            margin-bottom: 20px;
+            margin: 0;
+            padding: 20px;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        .instructions {
+            background-color: #007bff;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            width: 90%;
+            max-width: 400px;
         }
 
         #reader {
-            width: 100%;
+            width: 90%;
             max-width: 400px;
             height: auto;
             border: 2px solid #007bff;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
             background-color: #fff;
             margin-bottom: 20px;
         }
 
-        .instructions {
-            margin: 20px;
-            padding: 10px;
-            background-color: #007bff;
-            color: #fff;
-            border-radius: 5px;
-            text-align: center;
-            font-size: 1.1em;
+        footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.9rem;
+            color: #555;
         }
     </style>
 </head>
 <body>
     <h1>QR Code Scanner</h1>
     <div class="instructions">
-        <p>กรุณาสแกน QR Code โดยการใช้กล้องหลังของอุปกรณ์ของคุณ</p>
+        <p>กรุณาสแกน QR Code โดยใช้กล้องหลังของอุปกรณ์ของคุณ</p>
     </div>
     <div id="reader"></div>
+    <footer>
+        <p>© 2024 Your Company. All rights reserved.</p>
+    </footer>
     <script>
         let hasScanned = false; // ตัวแปรตรวจสอบการสแกน
         let html5QrCode;
