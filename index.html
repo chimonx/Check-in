@@ -3,130 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Scanner</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Scan QR Code</title>
+    <!-- Load Bootstrap from CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #e9ecef;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 500px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        .qr-reader-container {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
             padding: 20px;
+        }
+        .alert-custom {
+            font-size: 1.2rem;
+        }
+        .footer {
+            padding: 20px 0;
+            background-color: #f8f9fa;
             text-align: center;
-        }
-
-        h1 {
-            color: #007bff;
-            margin-bottom: 20px;
-            font-size: 2rem;
-        }
-
-        .instructions {
-            background-color: #007bff;
-            color: #fff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-        }
-
-        #reader {
-            width: 100%;
-            height: auto;
-            border: 2px solid #007bff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            background-color: #fff;
-            margin-bottom: 20px;
-        }
-
-        footer {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #555;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>QR Code Scanner</h1>
-        <div class="instructions">
-            <p>กรุณาสแกน QR Code โดยใช้กล้องหลังของอุปกรณ์ของคุณ</p>
+<body class="bg-light">
+    <header class="bg-primary text-white py-3">
+        <div class="container">
+            <h1 class="text-center">QR Code Scanner</h1>
         </div>
-        <div id="reader"></div>
-        <footer>
-            <p>© 2024 Your Company. All rights reserved.</p>
-        </footer>
+    </header>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="qr-reader-container">
+                    <h2 class="text-center mb-4">Scan QR Code</h2>
+                    <div id="reader" style="width:100%;"></div>
+                    <div id="scan-info" class="text-center mt-3"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        let hasScanned = false; // ตัวแปรตรวจสอบการสแกน
-        let html5QrCode;
+    <footer class="footer">
+        <p class="mb-0">&copy; 2024 Your Company. All rights reserved.</p>
+    </footer>
 
+    <script>
         function onScanSuccess(qrCodeMessage) {
-            if (hasScanned) {
-                return; // หากสแกนแล้วให้ไม่ทำอะไร
-            }
-            hasScanned = true; // ตั้งค่าตัวแปรเป็น true เพื่อป้องกันการสแกนซ้ำ
+            document.getElementById('scan-info').innerHTML = `
+                <div class="alert alert-success alert-custom">
+                    QR Code Detected: ${qrCodeMessage}
+                </div>`;
             const stdid = qrCodeMessage;
             const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSef3NyTNWCmb2xAMOxq_jen-SOEqAHuENM0KrUM65Iqwnqszg/viewform?usp=pp_url&entry.163639690=${stdid}`;
-            window.location.href = formUrl; // รีไดเรคไปยัง Google Form
+            setTimeout(() => {
+                window.location.href = formUrl;
+            }, 1500); // Allow time for user to see QR Code before redirecting
         }
 
         function onScanError(errorMessage) {
-            console.error(`QR Code scan error: ${errorMessage}`);
+            document.getElementById('scan-info').innerHTML = `
+                <div class="alert alert-danger alert-custom">
+                    Error: ${errorMessage}
+                </div>`;
         }
 
-        async function startScan() {
-            try {
-                // ตรวจสอบการอนุญาตการเข้าถึงกล้อง
-                await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                console.log("Camera access granted.");
+        const html5QrCode = new Html5Qrcode("reader");
 
-                // เริ่มการสแกน QR Code
-                Html5Qrcode.getCameras().then(cameras => {
-                    if (cameras && cameras.length) {
-                        const backCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('rear'));
-                        const cameraId = backCamera ? backCamera.id : cameras[0].id;
-                        html5QrCode = new Html5Qrcode("reader");
-                        html5QrCode.start(
-                            { deviceId: cameraId },
-                            {
-                                fps: 10,
-                                qrbox: 250
-                            },
-                            onScanSuccess,
-                            onScanError
-                        ).catch(err => {
-                            console.error(`Error starting QR code scan: ${err}`);
-                        });
-                    } else {
-                        console.error("No cameras found.");
-                    }
-                }).catch(err => {
-                    console.error(`Error getting cameras: ${err}`);
-                });
+        Html5Qrcode.getCameras().then(cameras => {
+            if (cameras && cameras.length) {
+                const backCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('rear'));
+                const cameraId = backCamera ? backCamera.id : cameras[0].id;
 
-            } catch (error) {
-                console.error("Camera access denied or failed:", error);
+                html5QrCode.start(
+                    { deviceId: cameraId },
+                    {
+                        fps: 10,
+                        qrbox: { width: 300, height: 300 } // Adjust the scan box size as needed
+                    },
+                    onScanSuccess,
+                    onScanError
+                );
+            } else {
+                document.getElementById('scan-info').innerHTML = `
+                    <div class="alert alert-warning alert-custom">
+                        No cameras found.
+                    </div>`;
             }
-        }
-
-        // เรียกใช้ฟังก์ชันเริ่มการสแกนเมื่อโหลดหน้าเว็บเสร็จ
-        document.addEventListener("DOMContentLoaded", startScan);
+        }).catch(err => {
+            document.getElementById('scan-info').innerHTML = `
+                <div class="alert alert-danger alert-custom">
+                    Error getting cameras: ${err}
+                </div>`;
+        });
     </script>
 </body>
 </html>
