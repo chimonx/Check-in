@@ -44,7 +44,7 @@
     </div>
 
     <footer class="footer">
-        <p class="mb-0">&copy; 2024 Student Umion. All rights reserved.</p>
+        <p class="mb-0">&copy; 2024 Student Union. All rights reserved.</p>
     </footer>
 
     <script>
@@ -63,17 +63,8 @@
                     setTimeout(() => {
                         window.location.href = formUrl;
                     }, 1500); // Allow time for user to see QR Code before redirecting
-                }).catch((err) => {
-                    console.error('Error stopping the scanner: ', err);
                 });
             }
-        }
-
-        function onScanError(errorMessage) {
-            document.getElementById('scan-info').innerHTML = `
-                <div class="alert alert-danger alert-custom">
-                    Error: ${errorMessage}
-                </div>`;
         }
 
         function startScanning() {
@@ -90,8 +81,7 @@
                             fps: 10,
                             qrbox: { width: 300, height: 300 } // Adjust the scan box size as needed
                         },
-                        onScanSuccess,
-                        onScanError
+                        onScanSuccess
                     );
                 } else {
                     document.getElementById('scan-info').innerHTML = `
@@ -99,11 +89,6 @@
                             No cameras found.
                         </div>`;
                 }
-            }).catch(err => {
-                document.getElementById('scan-info').innerHTML = `
-                    <div class="alert alert-danger alert-custom">
-                        Error getting cameras: ${err}
-                    </div>`;
             });
         }
 
