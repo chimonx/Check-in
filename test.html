@@ -13,18 +13,26 @@
             }, 1000); // ตั้งเวลาให้เปลี่ยนเส้นทางหลังจาก 1 วินาที
         }
 
-        function checkForFormSubmission() {
-            var xPath = '/html/body/div[1]/div/div/div[1]/div[3]'; // XPath ที่คุณต้องการค้นหา
-            var result = document.evaluate(xPath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-            var node = result.singleNodeValue;
+        function checkIframeContent() {
+            var iframe = document.getElementById('googleForm');
+            try {
+                // เข้าถึงเนื้อหาภายใน iframe
+                var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                var xPath = '/html/body/div[1]/div/div/div[1]/div[3]'; // XPath ที่คุณต้องการค้นหา
+                var result = iframeDocument.evaluate(xPath, iframeDocument, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+                var node = result.singleNodeValue;
 
-            if (node && node.innerText.includes('Thank you')) { // ตรวจสอบเนื้อหาในองค์ประกอบ
-                handleFormSubmission();
+                // ตรวจสอบว่ามีข้อความ "Thank you" หรือไม่
+                if (node && node.innerText.includes('Thank you')) {
+                    handleFormSubmission();
+                }
+            } catch (e) {
+                console.error('Unable to access iframe content:', e);
             }
         }
 
-        // ใช้ setInterval เพื่อตรวจสอบการเปลี่ยนแปลงในหน้า
-        setInterval(checkForFormSubmission, 1000); // ตรวจสอบทุก 1 วินาที
+        // ใช้ setInterval เพื่อตรวจสอบเนื้อหาภายใน iframe
+        setInterval(checkIframeContent, 1000); // ตรวจสอบทุก 1 วินาที
     </script>
 </head>
 <body>
