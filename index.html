@@ -44,20 +44,29 @@
     </div>
 
     <footer class="footer">
-        <p class="mb-0">&copy; 2024 Your Company. All rights reserved.</p>
+        <p class="mb-0">&copy; 2024 Student Umion of Bangkok University. All rights reserved.</p>
     </footer>
 
     <script>
+        let html5QrCode;
+
         function onScanSuccess(qrCodeMessage) {
-            document.getElementById('scan-info').innerHTML = `
-                <div class="alert alert-success alert-custom">
-                    QR Code Detected: ${qrCodeMessage}
-                </div>`;
-            const stdid = qrCodeMessage;
-            const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSef3NyTNWCmb2xAMOxq_jen-SOEqAHuENM0KrUM65Iqwnqszg/viewform?usp=pp_url&entry.163639690=${stdid}`;
-            setTimeout(() => {
-                window.location.href = formUrl;
-            }, 1500); // Allow time for user to see QR Code before redirecting
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    // Stopped successfully
+                    document.getElementById('scan-info').innerHTML = `
+                        <div class="alert alert-success alert-custom">
+                            QR Code Detected: ${qrCodeMessage}
+                        </div>`;
+                    const stdid = qrCodeMessage;
+                    const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSef3NyTNWCmb2xAMOxq_jen-SOEqAHuENM0KrUM65Iqwnqszg/viewform?usp=pp_url&entry.163639690=${stdid}`;
+                    setTimeout(() => {
+                        window.location.href = formUrl;
+                    }, 1500); // Allow time for user to see QR Code before redirecting
+                }).catch((err) => {
+                    console.error('Error stopping the scanner: ', err);
+                });
+            }
         }
 
         function onScanError(errorMessage) {
@@ -67,34 +76,38 @@
                 </div>`;
         }
 
-        const html5QrCode = new Html5Qrcode("reader");
+        function startScanning() {
+            html5QrCode = new Html5Qrcode("reader");
 
-        Html5Qrcode.getCameras().then(cameras => {
-            if (cameras && cameras.length) {
-                const backCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('rear'));
-                const cameraId = backCamera ? backCamera.id : cameras[0].id;
+            Html5Qrcode.getCameras().then(cameras => {
+                if (cameras && cameras.length) {
+                    const backCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('rear'));
+                    const cameraId = backCamera ? backCamera.id : cameras[0].id;
 
-                html5QrCode.start(
-                    { deviceId: cameraId },
-                    {
-                        fps: 10,
-                        qrbox: { width: 300, height: 300 } // Adjust the scan box size as needed
-                    },
-                    onScanSuccess,
-                    onScanError
-                );
-            } else {
+                    html5QrCode.start(
+                        { deviceId: cameraId },
+                        {
+                            fps: 10,
+                            qrbox: { width: 300, height: 300 } // Adjust the scan box size as needed
+                        },
+                        onScanSuccess,
+                        onScanError
+                    );
+                } else {
+                    document.getElementById('scan-info').innerHTML = `
+                        <div class="alert alert-warning alert-custom">
+                            No cameras found.
+                        </div>`;
+                }
+            }).catch(err => {
                 document.getElementById('scan-info').innerHTML = `
-                    <div class="alert alert-warning alert-custom">
-                        No cameras found.
+                    <div class="alert alert-danger alert-custom">
+                        Error getting cameras: ${err}
                     </div>`;
-            }
-        }).catch(err => {
-            document.getElementById('scan-info').innerHTML = `
-                <div class="alert alert-danger alert-custom">
-                    Error getting cameras: ${err}
-                </div>`;
-        });
+            });
+        }
+
+        startScanning();
     </script>
 </body>
 </html>
