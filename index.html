@@ -22,17 +22,12 @@
             background-color: #f8f9fa;
             text-align: center;
         }
-        .logo {
-            width: 150px; /* Adjust the size as needed */
-            height: auto;
-        }
     </style>
 </head>
 <body class="bg-light">
     <header class="bg-primary text-white py-3">
-        <div class="container text-center">
-            <img src="https://img2.pic.in.th/pic/LOGO-BU-STUDENT-UNION.png" alt="Student Union Logo" class="logo mb-2">
-            <h1>QR Code Scanner</h1>
+        <div class="container">
+            <h1 class="text-center">QR Code Scanner</h1>
         </div>
     </header>
 
@@ -59,12 +54,12 @@
             if (html5QrCode) {
                 html5QrCode.stop().then(() => {
                     // Stopped successfully
-                    document.getElementById('scan-info').innerHTML = `
+                    document.getElementById('scan-info').innerHTML = 
                         <div class="alert alert-success alert-custom">
                             QR Code Detected: ${qrCodeMessage}
-                        </div>`;
+                        </div>;
                     const stdid = qrCodeMessage;
-                    const formUrl = `https://docs.google.com/forms/d/e/1FAIpQLSef3NyTNWCmb2xAMOxq_jen-SOEqAHuENM0KrUM65Iqwnqszg/viewform?usp=pp_url&entry.163639690=${stdid}`;
+                    const formUrl = https://docs.google.com/forms/d/e/1FAIpQLSef3NyTNWCmb2xAMOxq_jen-SOEqAHuENM0KrUM65Iqwnqszg/viewform?usp=pp_url&entry.163639690=${stdid};
                     setTimeout(() => {
                         window.location.href = formUrl;
                     }, 1500); // Allow time for user to see QR Code before redirecting
@@ -89,10 +84,10 @@
                         onScanSuccess
                     );
                 } else {
-                    document.getElementById('scan-info').innerHTML = `
+                    document.getElementById('scan-info').innerHTML = 
                         <div class="alert alert-warning alert-custom">
                             No cameras found.
-                        </div>`;
+                        </div>;
                 }
             });
         }
