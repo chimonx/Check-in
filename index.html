@@ -110,19 +110,31 @@
             }
         }
 
-        // ตรวจสอบว่ามีอุปกรณ์ที่รองรับการสแกน QR Code หรือไม่
-        Html5Qrcode.getCameras().then(cameras => {
-            if (cameras && cameras.length) {
-                const backCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('rear'));
-                const cameraId = backCamera ? backCamera.id : cameras[0].id;
-                html5QrCode = new Html5Qrcode("reader");
-                startScan(); // เริ่มการสแกนโดยใช้กล้องที่เลือก
-            } else {
-                console.error("No cameras found.");
+        // ตรวจสอบการอนุญาตการเข้าถึงกล้อง
+        async function requestCameraAccess() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                console.log("Camera access granted.");
+                // เรียกใช้ฟังก์ชันเริ่มต้นการสแกนหลังจากการอนุญาตกล้อง
+                Html5Qrcode.getCameras().then(cameras => {
+                    if (cameras && cameras.length) {
+                        const backCamera = cameras.find(camera => camera.label.toLowerCase().includes('back') || camera.label.toLowerCase().includes('rear'));
+                        const cameraId = backCamera ? backCamera.id : cameras[0].id;
+                        html5QrCode = new Html5Qrcode("reader");
+                        startScan(); // เริ่มการสแกนโดยใช้กล้องที่เลือก
+                    } else {
+                        console.error("No cameras found.");
+                    }
+                }).catch(err => {
+                    console.error(`Error getting cameras: ${err}`);
+                });
+            } catch (error) {
+                console.error("Camera access denied or failed:", error);
             }
-        }).catch(err => {
-            console.error(`Error getting cameras: ${err}`);
-        });
+        }
+
+        // เรียกใช้ฟังก์ชันร้องขอการเข้าถึงกล้อง
+        requestCameraAccess();
     </script>
 </body>
 </html>
